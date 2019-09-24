@@ -18,18 +18,29 @@ class IdentificationClass():
         self.update_known_list()
 
     def update_known_list(self):
-        url = "https://webappdriverenrollment.azurewebsites.net/api/Drivers/All"
-        headers = {'Content-Type': 'application/octet-stream'}
-        try:
-            response = requests.get(url, headers=headers)
-        except Exception as ex:
-            print("Exception in requests.get(): %s" % ex)
-            return
 
-        if response.status_code != requests.codes['ok']:
-            return
+        # get photo from api
+        # url = "https://webappdriverenrollment.azurewebsites.net/api/Drivers/All"
+        # headers = {'Content-Type': 'application/octet-stream'}
+        # try:
+        #     response = requests.get(url, headers=headers)
+        # except Exception as ex:
+        #     print("Exception in requests.get(): %s" % ex)
+        #     return
 
-        drivers = response.json()
+        # if response.status_code != requests.codes['ok']:
+        #     return
+
+        # drivers = response.json()
+
+
+        # get photo from dir
+        drivers = []
+        photosPath = './data/photos/'
+        for file in os.listdir(photosPath):
+            with open(photosPath+file, "rb") as image_file:
+                encoded_string = base64.b64encode(image_file.read())
+            drivers.append({'Name':file[:-4], 'PhotoFile':file, 'Photo': encoded_string})
 
         known_face_encodings = []
         known_face_names = []

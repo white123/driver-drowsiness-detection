@@ -30,7 +30,7 @@ def start_record(image_w, image_h):
     global recording
 
     fourcc = cv.VideoWriter_fourcc(*'mp4v')
-    recording = cv.VideoWriter("output/result.mp4", fourcc, 10, (image_w, image_h))
+    recording = cv.VideoWriter("output/result.mp4", fourcc, 20, (image_w, image_h))
 
 def stop_record():
     global recording
@@ -84,7 +84,7 @@ def draw_object(image, color, label, confidence, x1, y1, x2, y2, message=None):
                     "Position": [int(x1), int(y1), int(x2), int(y2)],
                     "TimeStamp": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
                 }
-    print('detection result: {}' .format(json.dumps(message)))
+    # print('detection result: {}' .format(json.dumps(message)))
 
 def output_result(image, duration):
     if duration > 0.0:
@@ -107,6 +107,7 @@ def output_result(image, duration):
             if is_recording:
                 stop_record()
     else:        
+
         cv.imwrite("output/result.jpg", image)
 
 def output_detail(image, index, item, duration):

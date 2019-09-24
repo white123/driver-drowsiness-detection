@@ -54,6 +54,7 @@ class FaceDetectionClass():
             # Convert to RGB image compatible to dlib.load_rgb_image(f)
             # http://dlib.net/face_landmark_detection.py.html
             img = img[:, :, [2, 1, 0]]  # BGR => RGB
+            
             #faces = self.detector(img, 1)
             faces = self.detector(img)
 

@@ -12,7 +12,8 @@ from driver import DriverClass
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
-video_file = 'data/videos/incar_rgb_201908016-2.mp4'
+video_file = 'data/videos/IMG_6782.mp4'
+#video_file = 'data/videos/incar_rgb_201908016-2.mp4'
 
 source_type = os.environ['INPUT_SRC'] if 'INPUT_SRC' in os.environ else 'video'
 avail_source_type = ['video', 'camera']
@@ -20,6 +21,7 @@ avail_source_type = ['video', 'camera']
 def detect_image(model_class: str, frame_q: Queue):
     while True:
         frame = frame_q.get()
+        if frame is None: break
         model_class.detect_image(frame)
 
 def capture_frames(source: Union[str, int], frame_q: Queue):

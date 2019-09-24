@@ -25,8 +25,8 @@ class DriverClass():
         self.frame_count = self.max_frame_count
         self.info = []
 
-        self.image_w = 1280
-        self.image_h = 720
+        self.image_w = 640
+        self.image_h = 360
         self.crop_l = 160   # left
         self.crop_r = 160   # right
         self.crop_t = 180   # top
@@ -73,13 +73,13 @@ class DriverClass():
 
             # Get age
             t = time.time()
-            age = self.obj_age_gender.get_age(face)
+            age = 'teenager'#self.obj_age_gender.get_age(face)
             duration_age = time.time() - t
             #print('Age and Gender Detection Time = {:8.6f} sec' .format(duration_age))
 
             # Get gender
             t = time.time()
-            gender = self.obj_age_gender.get_gender(face)
+            gender = 'male'#self.obj_age_gender.get_gender(face)
             duration_gender = time.time() - t
             #print('Age and Gender Detection Time = {:8.6f} sec' .format(duration_gender))
 
@@ -97,24 +97,19 @@ class DriverClass():
 
             # Check drowsiness and yawn
             t = time.time()
-            if (x1 >= self.driver_pos_x) and (y1 >= self.driver_pos_y):
-                drowsiness, yawn = self.obj_behavior.check_drowsiness_yawn(img, rect)
-            else:
-                drowsiness = False
-                yawn = False
+            drowsiness, yawn, gaze = self.obj_behavior.check_drowsiness_yawn(img, rect)
             duration_yawn = time.time() - t
             #print('Drowsiness and Yawn Detection Time = {:8.6f} sec' .format(duration_yawn))
 
-            self.info.append([age, gender, name, emotion, drowsiness, yawn, confidence, color, 
+            self.info.append([age, gender, name, emotion, drowsiness, yawn, gaze, confidence, color, 
                         x1, y1, x2, y2, 
                         duration_face, duration_age, duration_gender, 
                         duration_emotion, duration_name, duration_yawn])
 
     def detect_image(self, image: np.ndarray):
         # Crop image
+        image = cv.resize(image, (640, 360))
         self.image_h, self.image_w = image.shape[:2]
-        image = image[self.crop_t:self.image_h - self.crop_b, self.crop_l:self.image_w - self.crop_r]
-        image = cv.resize(image, (self.image_w, self.image_h))
 
         if self.frame_count >= self.max_frame_count:
             self.detect_models(image)
@@ -124,11 +119,22 @@ class DriverClass():
 
         duration = 0.0
         for i in range(len(self.info)):
-            age, gender, name, emotion, drowsiness, yawn, confidence, color, \
+            age, gender, name, emotion, drowsiness, yawn, gaze, confidence, color, \
             x1, y1, x2, y2, duration_face, duration_age, duration_gender, \
             duration_emotion, duration_name, duration_yawn = self.info[i]
             
             duration += duration_face + duration_age + duration_gender + duration_emotion + duration_name + duration_yawn  # sec
+
+            # gaze text
+            # if gaze == 'CENTER':
+            #     cv.putText(image, gaze, (180, 320), cv.FONT_HERSHEY_SIMPLEX, 
+            #             3, (0, 255, 0), 2, cv.LINE_AA)
+            # elif gaze == 'LEFT':
+            #     cv.putText(image, gaze, (180, 320), cv.FONT_HERSHEY_SIMPLEX, 
+            #             3, (0, 0, 255), 2, cv.LINE_AA)
+            # else:
+            #     cv.putText(image, gaze, (180, 320), cv.FONT_HERSHEY_SIMPLEX, 
+            #             3, (255, 0, 0), 2, cv.LINE_AA)
 
             # Display bboxes and information
             label = name + ", " + emotion
@@ -159,7 +165,7 @@ class DriverClass():
             utility.output_detail(image, 5, "Driver behavior", duration_yawn)
 
             # Send alert messages
-            if (x1 >= self.driver_pos_x) and (y1 >= self.driver_pos_y):  # Only send alert for driver
+            if True or (x1 >= self.driver_pos_x) and (y1 >= self.driver_pos_y):  # Only send alert for driver
                 if (name == "Unknown"):
                     cv.putText(image, "?", (int((x1 + x2) / 2) - 40, y1), cv.FONT_HERSHEY_DUPLEX, utility.textsize_label * 3, (128, 0, 128), 1, cv.LINE_AA)
 
