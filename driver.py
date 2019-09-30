@@ -43,6 +43,9 @@ class DriverClass():
         self.obj_face = FaceDetectionClass()
         self.obj_identification = IdentificationClass()
 
+        self.t_start = None
+        self.t_end = None
+
         if utility.is_recording:
             utility.start_record(self.image_w, self.image_h)
 
@@ -51,60 +54,60 @@ class DriverClass():
 
         # get faces in image
         t = time.time()
-        faces = self.obj_face.get_faces_dlib(image)
+        driver_face = self.obj_face.get_driver_dlib(image)
         duration_face = time.time() - t
         # logging.info(f'Face Detection Time = {duration_face} sec')
 
-        if faces is None:
+        if driver_face is None:
             logging.info("!!! No face found !!!")
             return
 
         gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)  # gray image
         img = image.copy()
 
-        for rect in faces:
-            x1, x2, y1, y2 = rect.left(), rect.right(), rect.top(), rect.bottom()
-            padding_w = int((x2 - x1) * self.padding_ratio)
-            padding_h = int((y2 - y1) * self.padding_ratio)
-            face = img[max(0, y1 - padding_h):min(y2 + padding_h, self.image_h - 1), 
-                        max(0, x1 - padding_w):min(x2 + padding_w, self.image_w - 1)]
-            face_gray = gray[max(0, y1 - padding_h):min(y2 + padding_h, self.image_h - 1), 
-                                max(0, x1 - padding_w):min(x2 + padding_w, self.image_w - 1)]  
+        # for rect in faces:
+        x1, x2, y1, y2 = driver_face.left(), driver_face.right(), driver_face.top(), driver_face.bottom()
+        padding_w = int((x2 - x1) * self.padding_ratio)
+        padding_h = int((y2 - y1) * self.padding_ratio)
+        face = img[max(0, y1 - padding_h):min(y2 + padding_h, self.image_h - 1), 
+                    max(0, x1 - padding_w):min(x2 + padding_w, self.image_w - 1)]
+        face_gray = gray[max(0, y1 - padding_h):min(y2 + padding_h, self.image_h - 1), 
+                            max(0, x1 - padding_w):min(x2 + padding_w, self.image_w - 1)]  
 
-            # Get age
-            t = time.time()
-            age = 'teenager'#self.obj_age_gender.get_age(face)
-            duration_age = time.time() - t
-            #print('Age and Gender Detection Time = {:8.6f} sec' .format(duration_age))
+        # Get age
+        t = time.time()
+        age = 'teenager'#self.obj_age_gender.get_age(face)
+        duration_age = time.time() - t
+        #print('Age and Gender Detection Time = {:8.6f} sec' .format(duration_age))
 
-            # Get gender
-            t = time.time()
-            gender = 'male'#self.obj_age_gender.get_gender(face)
-            duration_gender = time.time() - t
-            #print('Age and Gender Detection Time = {:8.6f} sec' .format(duration_gender))
+        # Get gender
+        t = time.time()
+        gender = 'male'#self.obj_age_gender.get_gender(face)
+        duration_gender = time.time() - t
+        #print('Age and Gender Detection Time = {:8.6f} sec' .format(duration_gender))
 
-            # Get name
-            t = time.time()
-            name = self.obj_identification.get_name(face)
-            duration_name = time.time() - t
-            #print('Driver Identification Time = {:8.6f} sec' .format(duration_name))
+        # Get name
+        t = time.time()
+        name = self.obj_identification.get_name(face)
+        duration_name = time.time() - t
+        #print('Driver Identification Time = {:8.6f} sec' .format(duration_name))
             
-            # Get emotion
-            t = time.time()
-            emotion, confidence, color = self.obj_emotion.get_emotion(face_gray)
-            duration_emotion = time.time() - t
-            #print('Emotion Detection Time = {:8.6f} sec' .format(duration_emotion))
+        # Get emotion
+        t = time.time()
+        emotion, confidence, color = self.obj_emotion.get_emotion(face_gray)
+        duration_emotion = time.time() - t
+        #print('Emotion Detection Time = {:8.6f} sec' .format(duration_emotion))
 
-            # Check drowsiness and yawn
-            t = time.time()
-            drowsiness, yawn, gaze = self.obj_behavior.check_drowsiness_yawn(img, rect)
-            duration_yawn = time.time() - t
-            #print('Drowsiness and Yawn Detection Time = {:8.6f} sec' .format(duration_yawn))
+        # Check drowsiness and yawn
+        t = time.time()
+        drowsiness, yawn, gaze, head_pose = self.obj_behavior.check_drowsiness_yawn(img, driver_face)
+        duration_yawn = time.time() - t
+        #print('Drowsiness and Yawn Detection Time = {:8.6f} sec' .format(duration_yawn))
 
-            self.info.append([age, gender, name, emotion, drowsiness, yawn, gaze, confidence, color, 
-                        x1, y1, x2, y2, 
-                        duration_face, duration_age, duration_gender, 
-                        duration_emotion, duration_name, duration_yawn])
+        self.info.append([age, gender, name, emotion, drowsiness, yawn, gaze, confidence, color, 
+                    x1, y1, x2, y2, 
+                    duration_face, duration_age, duration_gender, 
+                    duration_emotion, duration_name, duration_yawn, head_pose])
 
     def detect_image(self, image: np.ndarray):
         # Crop image
@@ -121,20 +124,38 @@ class DriverClass():
         for i in range(len(self.info)):
             age, gender, name, emotion, drowsiness, yawn, gaze, confidence, color, \
             x1, y1, x2, y2, duration_face, duration_age, duration_gender, \
-            duration_emotion, duration_name, duration_yawn = self.info[i]
+            duration_emotion, duration_name, duration_yawn, head_pose = self.info[i]
             
             duration += duration_face + duration_age + duration_gender + duration_emotion + duration_name + duration_yawn  # sec
 
-            # gaze text
+            # gaze text 
+            # if not center for over 2 seconds then display text
             # if gaze == 'CENTER':
-            #     cv.putText(image, gaze, (180, 320), cv.FONT_HERSHEY_SIMPLEX, 
-            #             3, (0, 255, 0), 2, cv.LINE_AA)
+            #     self.t_start = time.time()
             # elif gaze == 'LEFT':
-            #     cv.putText(image, gaze, (180, 320), cv.FONT_HERSHEY_SIMPLEX, 
-            #             3, (0, 0, 255), 2, cv.LINE_AA)
+            #     self.t_end = time.time()
+            #     try:
+            #         t = self.t_end - self.t_start
+            #         if t >= 2:
+            #             cv.putText(image, gaze, (180, 320), cv.FONT_HERSHEY_SIMPLEX, 
+            #                 3, (0, 0, 255), 2, cv.LINE_AA)
+            #         else:
+            #             cv.putText(image, 'left', (180, 320), cv.FONT_HERSHEY_SIMPLEX, 
+            #                 3, (0, 0, 255), 2, cv.LINE_AA)
+            #     except:
+            #         self.t_start = time.time()
             # else:
-            #     cv.putText(image, gaze, (180, 320), cv.FONT_HERSHEY_SIMPLEX, 
-            #             3, (255, 0, 0), 2, cv.LINE_AA)
+            #     self.t_end = time.time()
+            #     try:
+            #         t = self.t_end - self.t_start
+            #         if t >= 2:
+            #             cv.putText(image, gaze, (180, 320), cv.FONT_HERSHEY_SIMPLEX, 
+            #                 3, (255, 0, 0), 2, cv.LINE_AA)
+            #         else:
+            #             cv.putText(image, 'right', (180, 320), cv.FONT_HERSHEY_SIMPLEX, 
+            #                 3, (255, 0, 0), 2, cv.LINE_AA)
+            #     except:
+            #         self.t_start = time.time()
 
             # Display bboxes and information
             label = name + ", " + emotion
@@ -147,6 +168,7 @@ class DriverClass():
             cv.rectangle(image, (x1, y), (x1 + utility.rect_w, y + utility.rect_h), color, -1)
             cv.putText(image, label, (x1 + 4, y + utility.rect_h - 4), cv.FONT_HERSHEY_SIMPLEX, 
                         utility.textsize_label, (255 - color[0], 255 - color[1], 255 - color[2]), 1, cv.LINE_AA)
+            cv.line(image, head_pose[0], head_pose[1], (255,0,0), 2)
                 
             message = { "Name": name, "Emotion": emotion, "Gender": gender, "Age": age,
                         "Confidence": "{:6.4f}".format(confidence),

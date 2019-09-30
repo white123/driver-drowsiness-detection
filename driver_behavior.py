@@ -5,6 +5,8 @@
 import numpy as np
 import dlib
 from cv2 import cv2 as cv
+from imutils import face_utils
+import time
 
 class BehaviorClass():
     def __init__(self):
@@ -17,6 +19,8 @@ class BehaviorClass():
         self.face_size_w = 400
         self.face_size_h = 400
         self.frame = None
+        self.t_start = None
+        self.t_end = None
 
     def eye_aspect_ratio(self, eye):
         # calculate the distances between the two sets of vertical eye landmarks
@@ -101,7 +105,16 @@ class BehaviorClass():
             
         # check to see if the eye aspect ratio is below the eye threshold
         if ear < self.eye_threshold:
-            drowsiness = True
+            try:
+                self.t_end = time.time()
+                t = self.t_end - self.t_start
+                print(t)
+                if t >= 2:
+                    drowsiness = True
+            except:
+                self.t_start = time.time()
+        else:
+            self.t_start = time.time()
 
         # check yawn
         top_lips=[]
@@ -139,5 +152,42 @@ class BehaviorClass():
         else:
             gaze = 'LEFT'
 
+        # head pose
+        shape0 = np.array(face_utils.shape_to_np(landmarks))
+        image_points = np.array([
+                            (shape0[33, :]),     # Nose tip
+                            (shape0[8,  :]),     # Chin
+                            (shape0[36, :]),     # Left eye left corner
+                            (shape0[45, :]),     # Right eye right corne
+                            (shape0[48, :]),     # Left Mouth corner
+                            (shape0[54, :])      # Right mouth corner
+                        ], dtype="double")
 
-        return drowsiness, yawn, gaze
+        model_points = np.array([
+                            (0.0, 0.0, 0.0),             # Nose tip
+                            (0.0, -330.0, -65.0),        # Chin
+                            (-225.0, 170.0, -135.0),     # Left eye left corner
+                            (225.0, 170.0, -135.0),      # Right eye right corne
+                            (-150.0, -150.0, -125.0),    # Left Mouth corner
+                            (150.0, -150.0, -125.0)      # Right mouth corner                     
+                        ])
+
+        focal_length = 640
+        center = (320, 180)
+        camera_matrix = np.array(
+                                 [[focal_length, 0, center[0]],
+                                 [0, focal_length, center[1]],
+                                 [0, 0, 1]], dtype = "double"
+                                )
+        
+        # print ("Camera Matrix :\n {0}".format(camera_matrix))
+        dist_coeffs = np.zeros((4,1)) # Assuming no lens distortion
+        (success, rotation_vector, translation_vector) = cv.solvePnP(model_points, image_points, camera_matrix, dist_coeffs, flags=cv.SOLVEPNP_ITERATIVE)
+        # print ("Rotation Vector:\n {0}".format(rotation_vector))
+        # print ("Translation Vector:\n {0}".format(translation_vector))
+
+        (nose_end_point2D, jacobian) = cv.projectPoints(np.array([(0.0, 0.0, 1000.0)]), rotation_vector, translation_vector, camera_matrix, dist_coeffs)
+        p1 = ( int(image_points[0][0]), int(image_points[0][1]))
+        p2 = ( int(nose_end_point2D[0][0][0]), int(nose_end_point2D[0][0][1]))
+
+        return drowsiness, yawn, gaze, [p1, p2]

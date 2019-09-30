@@ -39,7 +39,7 @@ class FaceDetectionClass():
                 faces.append([x1, y1, x2, y2])
         return faces
     
-    def get_faces_dlib(self, image):
+    def get_driver_dlib(self, image):
         try:
             # get faces in image
             gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)  # gray image
@@ -61,5 +61,13 @@ class FaceDetectionClass():
         except Exception as ex:
             print("Exception in detect_image: %s" % ex)
             faces = None
+
+        face = None
+        area = 0
+        for i in faces:
+            face_area = (i.right() - i.left() + 1) * (i.bottom() - i.top() + 1)
+            if face_area > area:
+                face = i
+                area = face_area
         
-        return faces
+        return face
