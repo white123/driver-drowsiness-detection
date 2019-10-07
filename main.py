@@ -8,6 +8,8 @@ from cv2 import cv2 as cv
 from queue import Queue
 from typing import Union
 
+import numpy as np
+
 from driver import DriverClass
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -24,14 +26,17 @@ def detect_image(model_class: str, frame_q: Queue):
         if frame is None: break
         model_class.detect_image(frame)
 
-def capture_frames(source: Union[str, int], frame_q: Queue):
+def capture_frames(source: Union[str, int], frame_q: Queue, model_class):
     try:
         cap = cv.VideoCapture(source)
         while cap.isOpened():
             # Capture frame-by-frame
             retval, frame = cap.read()
             if retval:
-                frame_q.put(frame)
+                frame_q.put(cv.flip(frame, 1))
+            img = model_class.get_img()
+            cv.imshow('output', img)
+            cv.waitKey(1)
     finally:
         cap.release()
 
@@ -50,6 +55,6 @@ if __name__ == '__main__':
     logging.info(f'Start to load from source input {source_type}')
     logging.info(f'Use source type {source_type}')
     if source_type == 'video':
-        capture_frames(video_file, frame_q)
+        capture_frames(video_file, frame_q, model_class)
     elif source_type == 'camera':
-        capture_frames(0, frame_q)
+        capture_frames(0, frame_q, model_class)

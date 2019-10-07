@@ -1,19 +1,76 @@
+# -*- coding: utf-8 -*-
 import cv2
 import time
+import threading
 
-#cap = cv2.VideoCapture('data/videos/IMG_6793.mp4')
-cap = cv2.VideoCapture('data/videos/I.mp4')
-total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-print('total frames:', total)
+# 接收攝影機串流影像，採用多執行緒的方式，降低緩衝區堆疊圖幀的問題。
+class ipcamCapture:
+    def __init__(self, URL):
+        self.Frame = []
+        self.status = False
+        self.isstop = False
+		
+	# 攝影機連接。
+        self.capture = cv2.VideoCapture(URL)
 
-t = time.time()
-cnt = 1
-while cap.isOpened():
-    _, frame = cap.read()
-    frame = cv2.resize(frame, (320, 180))
-    cv2.imshow('t', frame)
-    cv2.waitKey(1)
-    duration = time.time() - t
-    print('\b'*20, end='')
-    print(cnt, end='', flush=True)
-    cnt += 1
+    def start(self):
+	# 把程式放進子執行緒，daemon=True 表示該執行緒會隨著主執行緒關閉而關閉。
+        print('ipcam started!')
+        threading.Thread(target=self.queryframe, daemon=True, args=()).start()
+
+    def stop(self):
+	# 記得要設計停止無限迴圈的開關。
+        self.isstop = True
+        print('ipcam stopped!')
+   
+    def getframe(self):
+	# 當有需要影像時，再回傳最新的影像。
+        return self.Frame
+        
+    def queryframe(self):
+        while (not self.isstop):
+            self.status, self.Frame = self.capture.read()
+        
+        self.capture.release()
+
+URL = 0
+
+# 連接攝影機
+ipcam = ipcamCapture(URL)
+
+# 啟動子執行緒
+ipcam.start()
+
+# 暫停1秒，確保影像已經填充
+time.sleep(1)
+
+# 使用無窮迴圈擷取影像，直到按下Esc鍵結束
+while True:
+    # 使用 getframe 取得最新的影像
+    I = ipcam.getframe()
+    
+    cv2.imshow('Image', I)
+    if cv2.waitKey(1) == 27:
+        cv2.destroyAllWindows()
+        ipcam.stop()
+        break
+
+# import cv2
+# import time
+
+# #cap = cv2.VideoCapture('data/videos/IMG_6793.mp4')
+# cap = cv2.VideoCapture(0)
+# total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+# print('total frames:', total)
+
+# t = time.time()
+# cnt = 1
+# while cap.isOpened():
+#     _, frame = cap.read()
+#     frame = cv2.resize(frame, (320, 180))
+#     cv2.imshow('t', frame)
+#     cv2.waitKey(1)
+#     duration = time.time() - t
+#     print('\b'*20, end='')
+#     print(cnt, end='', flush=True)
+#     cnt += 1

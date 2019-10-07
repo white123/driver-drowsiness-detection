@@ -46,8 +46,13 @@ class DriverClass():
         self.t_start = None
         self.t_end = None
 
+        self.output_img = np.zeros((360, 640, 3))
+
         if utility.is_recording:
             utility.start_record(self.image_w, self.image_h)
+
+    def get_img(self):
+        return self.output_img
 
     def detect_models(self, image):
         self.info.clear()
@@ -207,4 +212,5 @@ class DriverClass():
                     
         # Ouput detection result
         #image = cv.resize(image, (self.image_w, self.image_h))   # restore to the original image size to display
-        utility.output_result(image, duration)
+        
+        self.output_img = utility.output_result(image, duration)

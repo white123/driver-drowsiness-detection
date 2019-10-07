@@ -102,13 +102,13 @@ def output_result(image, duration):
     if is_showing:
         if recording is not None:
             recording.write(image)
-        cv.imshow("Detection Result", image)        
-        if (cv.waitKey(25) & 0xff) == ord('q'):
-            if is_recording:
-                stop_record()
+        #cv.imshow("Detection Result", image)
+        # if (cv.waitKey(25) & 0xff) == ord('q'):
+        #     if is_recording:
+        #         stop_record()
     else:        
-
         cv.imwrite("output/result.jpg", image)
+    return image
 
 def output_detail(image, index, item, duration):
     duration = int(np.round(duration * 1000))
