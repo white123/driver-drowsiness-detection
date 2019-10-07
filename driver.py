@@ -47,6 +47,7 @@ class DriverClass():
         self.t_end = None
 
         self.output_img = np.zeros((360, 640, 3))
+        self.color_list = {'safe': (0, 255, 0), 'warning': (0, 112, 255), 'danger': (0, 0, 255)}
 
         if utility.is_recording:
             utility.start_record(self.image_w, self.image_h)
@@ -209,6 +210,12 @@ class DriverClass():
                 if alert is not None:
                     cv.putText(image, "!!! " + alert + " !!!", (x1 + 10, int(y1 + utility.rect_h * 1.3)), 
                                 cv.FONT_HERSHEY_DUPLEX, utility.textsize_label * 1.2, (0, 0, 255), 1, cv.LINE_AA)
+                
+        # show driver status
+        status = 'danger'
+        col = self.color_list[status]
+        cv.putText(image, status, (500, 30), cv.FONT_HERSHEY_DUPLEX, 
+                    1, col, 1, cv.LINE_AA)
                     
         # Ouput detection result
         #image = cv.resize(image, (self.image_w, self.image_h))   # restore to the original image size to display

@@ -20,11 +20,11 @@ recording = None
 
 rect_h = 14
 rect_w = 140
-textsize_fps = 0.5
+textsize_fps = 0.4
 textsize_label = 0.4
 
-textsize_detail = 0.4
-detail_h = 16
+textsize_detail = 0.3
+detail_h = 12
 
 def start_record(image_w, image_h):
     global recording
@@ -92,7 +92,7 @@ def output_result(image, duration):
         fps = 1.0 / duration
         duration = int(np.round(duration * 1000))
         text = "Detect 1 frame : {} ms | {:6.2f} fps" .format(duration, fps)
-        cv.putText(image, text, (40, 60), cv.FONT_HERSHEY_SIMPLEX, textsize_fps, (0, 0, 255), 1, cv.LINE_AA)
+        cv.putText(image, text, (20, 20), cv.FONT_HERSHEY_SIMPLEX, textsize_fps, (255, 255, 255), 1, cv.LINE_AA)
         print(text)
 
     # Reduce image size to speed up image saving
@@ -113,4 +113,4 @@ def output_result(image, duration):
 def output_detail(image, index, item, duration):
     duration = int(np.round(duration * 1000))
     text = item + ": {} ms" .format(duration)
-    cv.putText(image, text, (50, 80 + detail_h * index), cv.FONT_HERSHEY_SIMPLEX, textsize_detail, (0, 0, 255), 1, cv.LINE_AA)
+    cv.putText(image, text, (20, 32 + detail_h * index), cv.FONT_HERSHEY_SIMPLEX, textsize_detail, (255, 255, 255), 1, cv.LINE_AA)
