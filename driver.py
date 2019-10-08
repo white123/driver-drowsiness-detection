@@ -13,6 +13,8 @@ import utility
 import os
 import logging
 
+from queue import Queue
+
 from driver_age_gender import AgeGenderClass
 from driver_behavior import BehaviorClass
 from driver_emotion import EmotionClass
@@ -49,6 +51,14 @@ class DriverClass():
         self.output_img = np.zeros((360, 640, 3))
         self.color_list = {'safe': (0, 255, 0), 'warning': (0, 112, 255), 'danger': (0, 0, 255)}
 
+        self.vote_num = 30
+        self.drowsiness_vote = Queue(self.vote_num)
+        self.drowsiness_sum = 0
+        self.yawn_vote = Queue(self.vote_num)
+        self.yawn_sum = 0
+        for i in range(0, self.vote_num):
+            self.drowsiness_vote.put(False)
+            self.yawn_vote.put(False)
         if utility.is_recording:
             utility.start_record(self.image_w, self.image_h)
 
@@ -56,7 +66,7 @@ class DriverClass():
         return self.output_img
 
     def detect_models(self, image):
-        self.info.clear()
+        
 
         # get faces in image
         t = time.time()
@@ -110,6 +120,7 @@ class DriverClass():
         duration_yawn = time.time() - t
         #print('Drowsiness and Yawn Detection Time = {:8.6f} sec' .format(duration_yawn))
 
+        self.info.clear()
         self.info.append([age, gender, name, emotion, drowsiness, yawn, gaze, confidence, color, 
                     x1, y1, x2, y2, 
                     duration_face, duration_age, duration_gender, 
@@ -212,7 +223,19 @@ class DriverClass():
                                 cv.FONT_HERSHEY_DUPLEX, utility.textsize_label * 1.2, (0, 0, 255), 1, cv.LINE_AA)
                 
         # show driver status
-        status = 'danger'
+        self.drowsiness_sum += drowsiness
+        self.drowsiness_sum -= self.drowsiness_vote.get()
+        self.drowsiness_vote.put(drowsiness)
+        self.yawn_sum += yawn
+        self.yawn_sum -= self.yawn_vote.get()
+        self.yawn_vote.put(yawn)
+        print(self.yawn_sum, self.drowsiness_sum)
+        if self.yawn_sum+self.drowsiness_sum*2 > self.vote_num:
+            status = 'danger'
+        elif self.yawn_sum+self.drowsiness_sum*2 > self.vote_num//2:
+            status = 'warning'
+        else:
+            status = 'safe'
         col = self.color_list[status]
         cv.putText(image, status, (500, 30), cv.FONT_HERSHEY_DUPLEX, 
                     1, col, 1, cv.LINE_AA)
