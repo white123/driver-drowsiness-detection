@@ -51,9 +51,9 @@ class BehaviorClass():
         gray = cv.cvtColor(self.frame, cv.COLOR_BGR2GRAY)
         eye = cv.bitwise_and(gray, gray, mask=mask)
 
-        min_x = np.min(eye_region[:, 0])
+        min_x = max(0, np.min(eye_region[:, 0]))
         max_x = np.max(eye_region[:, 0])
-        min_y = np.min(eye_region[:, 1])
+        min_y = max(0, np.min(eye_region[:, 1]))
         max_y = np.max(eye_region[:, 1])
 
         gray_eye = eye[min_y: max_y, min_x: max_x]

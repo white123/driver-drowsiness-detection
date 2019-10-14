@@ -93,7 +93,7 @@ def output_result(image, duration):
         duration = int(np.round(duration * 1000))
         text = "Detect 1 frame : {} ms | {:6.2f} fps" .format(duration, fps)
         cv.putText(image, text, (20, 20), cv.FONT_HERSHEY_SIMPLEX, textsize_fps, (255, 255, 255), 1, cv.LINE_AA)
-        print(text)
+        #print(text)
 
     # Reduce image size to speed up image saving
     image_h, image_w = image.shape[:2]

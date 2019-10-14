@@ -19,6 +19,7 @@ video_file = 'data/videos/IMG_6782.mp4'
 
 source_type = os.environ['INPUT_SRC'] if 'INPUT_SRC' in os.environ else 'video'
 avail_source_type = ['video', 'camera']
+name = ""
 
 def detect_image(model_class: str, frame_q: Queue):
     while True:
@@ -47,13 +48,15 @@ if __name__ == '__main__':
         logging.error(f'Source type {source_type} not supported')
 
     # Init Model class
-    model_class = DriverClass()
+    name = input("Enter Driver's ID: ")
+    model_class = DriverClass(name)
 
     logging.info(f'Start to detect object with model DriverClass')
     threading.Thread(target=detect_image, args=(model_class, frame_q), daemon=True).start()
     
     logging.info(f'Start to load from source input {source_type}')
     logging.info(f'Use source type {source_type}')
+    
     if source_type == 'video':
         capture_frames(video_file, frame_q, model_class)
     elif source_type == 'camera':
