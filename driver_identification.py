@@ -16,6 +16,7 @@ class IdentificationClass():
         self.known_face_encodings = []
         self.known_face_names = []
         self.update_known_list()
+        self.face_threadhold = 0.4
 
     def update_known_list(self):
 
@@ -85,8 +86,9 @@ class IdentificationClass():
 
             # Or instead, use the known face with the smallest distance to the new face
             face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
+            min_dis = face_distances.min()
             best_match_index = np.argmin(face_distances)
-            if matches[best_match_index]:
+            if matches[best_match_index] and min_dis < self.face_threadhold:
                 name = self.known_face_names[best_match_index]
             
             if (name != "Unknown"):

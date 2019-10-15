@@ -225,7 +225,7 @@ class DriverClass():
 
         # show driving status // this is garbage
         if 'name' in locals():
-            if name == self.driver_name and self.driver_vote < 10:
+            if name == self.driver_name and self.driver_vote < 20:
                 self.driver_vote += 1
             elif self.driver_vote > 0:
                 self.driver_vote -= 1
@@ -233,7 +233,7 @@ class DriverClass():
             if not self.driving:
                 driving_status = "Vehicle Locked"
                 col = (255,255,0)
-                if self.driver_vote >= 8:
+                if self.driver_vote >= 15:
                     self.driving = True
                     logging.info(f'Welcome back {self.driver_name}')
             else:
