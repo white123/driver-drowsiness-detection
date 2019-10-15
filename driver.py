@@ -51,7 +51,7 @@ class DriverClass():
         self.output_img = np.zeros((360, 640, 3))
         self.color_list = {'safe': (0, 255, 0), 'warning': (0, 112, 255), 'danger': (0, 0, 255)}
 
-        self.vote_num = 30
+        self.vote_num = 15
         self.drowsiness_vote = Queue(self.vote_num)
         self.drowsiness_sum = 0
         self.yawn_vote = Queue(self.vote_num)
@@ -80,7 +80,7 @@ class DriverClass():
         # logging.info(f'Face Detection Time = {duration_face} sec')
 
         if driver_face is None:
-            logging.info("!!! No face found !!!")
+            # logging.info("!!! No face found !!!")
             self.info = ""
             return
 
@@ -201,6 +201,7 @@ class DriverClass():
                     alert = alert + " + YAWN"
 
             if alert is not None:
+                print('alert:', alert)
                 cv.putText(image, "!!! " + alert + " !!!", (x1 + 10, int(y1 + utility.rect_h * 1.3)), 
                             cv.FONT_HERSHEY_DUPLEX, utility.textsize_label * 1.2, (0, 0, 255), 1, cv.LINE_AA)
             
@@ -211,9 +212,10 @@ class DriverClass():
             self.yawn_sum += yawn
             self.yawn_sum -= self.yawn_vote.get()
             self.yawn_vote.put(yawn)
-            if self.yawn_sum+self.drowsiness_sum*2 > self.vote_num:
+            # print('vote:', self.yawn_sum+self.drowsiness_sum*2)
+            if int(self.yawn_sum*1.1)+self.drowsiness_sum*2 > self.vote_num:
                 sleepy_status = 'danger'
-            elif self.yawn_sum+self.drowsiness_sum*2 > self.vote_num//2:
+            elif int(self.yawn_sum*1.1)+self.drowsiness_sum*2 > self.vote_num//2:
                 sleepy_status = 'warning'
             else:
                 sleepy_status = 'safe'
@@ -239,10 +241,13 @@ class DriverClass():
                 col = (255,0,0)
                 if self.driver_vote < 5:
                     driving_status = "Wrong Driver! Speed Limit: 20"
-                    col = (0,0, 255)
-
-        cv.putText(image, driving_status, (200, 30), cv.FONT_HERSHEY_DUPLEX, 
-                    1, col, 1, cv.LINE_AA)
+                    col = (0,0,255)
+        if not driving_status == 'Wrong Driver! Speed Limit: 20':
+            cv.putText(image, driving_status, (200, 60), cv.FONT_HERSHEY_DUPLEX, 
+                        1, col, 1, cv.LINE_AA)
+        else:
+            cv.putText(image, driving_status, (80, 60), cv.FONT_HERSHEY_DUPLEX, 
+                        1, col, 1, cv.LINE_AA)
                     
         # Ouput detection result
         #image = cv.resize(image, (self.image_w, self.image_h))   # restore to the original image size to display

@@ -47,6 +47,15 @@ if __name__ == '__main__':
     if source_type not in avail_source_type:
         logging.error(f'Source type {source_type} not supported')
 
+    # list all users
+    path = './data/photos'
+    names = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+    print('=' * 15, 'Driver List', '=' * 15)
+    for n in names:
+        if n.split('.')[-1] == 'jpg':
+            print(n.split('.')[0])
+    print('=' * 43, end='\n\n')
+
     # Init Model class
     name = input("Enter Driver's ID: ")
     model_class = DriverClass(name)

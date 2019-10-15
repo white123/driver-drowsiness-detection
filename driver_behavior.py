@@ -14,7 +14,7 @@ class BehaviorClass():
         # Initialize drowsiness and yawn checking
         self.detector = dlib.get_frontal_face_detector()
         self.predictor = dlib.shape_predictor("models/emotion_ferplus/shape_predictor_68_face_landmarks.dat")
-        self.eye_threshold = 0.18
+        self.eye_threshold = 0.20
         self.mouth_threshold = 0.2
         self.face_size_w = 400
         self.face_size_h = 400
@@ -105,14 +105,10 @@ class BehaviorClass():
             
         # check to see if the eye aspect ratio is below the eye threshold
         if ear < self.eye_threshold:
-            try:
-                self.t_end = time.time()
-                t = self.t_end - self.t_start
-                print(t)
-                if t >= 2:
-                    drowsiness = True
-            except:
-                self.t_start = time.time()
+            self.t_end = time.time()
+            t = self.t_end - self.t_start
+            if t >= 1.3:
+                drowsiness = True
         else:
             self.t_start = time.time()
 
