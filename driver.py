@@ -215,7 +215,11 @@ class DriverClass():
             # print('vote:', self.yawn_sum+self.drowsiness_sum*2)
             if int(self.yawn_sum*1.1)+self.drowsiness_sum*2 > self.vote_num:
                 sleepy_status = 'danger'
+<<<<<<< HEAD
                 print('Danger!!!\a')
+=======
+                print("Danger!!!\a")
+>>>>>>> dd84969198de842ac34887774d0eeb1d6b127a36
             elif int(self.yawn_sum*1.1)+self.drowsiness_sum*2 > self.vote_num//2:
                 sleepy_status = 'warning'
             else:
