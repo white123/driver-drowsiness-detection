@@ -16,7 +16,7 @@ class IdentificationClass():
         self.known_face_encodings = []
         self.known_face_names = []
         self.update_known_list()
-        self.face_threadhold = 0.4
+        self.face_threadhold = 0.45
 
     def update_known_list(self):
 

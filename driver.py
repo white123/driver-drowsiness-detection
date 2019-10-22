@@ -215,6 +215,7 @@ class DriverClass():
             # print('vote:', self.yawn_sum+self.drowsiness_sum*2)
             if int(self.yawn_sum*1.1)+self.drowsiness_sum*2 > self.vote_num:
                 sleepy_status = 'danger'
+                print('Danger!!!\a')
             elif int(self.yawn_sum*1.1)+self.drowsiness_sum*2 > self.vote_num//2:
                 sleepy_status = 'warning'
             else:
@@ -241,6 +242,7 @@ class DriverClass():
                 col = (255,0,0)
                 if self.driver_vote < 5:
                     driving_status = "Wrong Driver! Speed Limit: 20"
+                    print('Wrong Driver!!!\a')
                     col = (0,0,255)
         if not driving_status == 'Wrong Driver! Speed Limit: 20':
             cv.putText(image, driving_status, (200, 60), cv.FONT_HERSHEY_DUPLEX, 
