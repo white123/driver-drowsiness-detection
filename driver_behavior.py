@@ -104,7 +104,7 @@ class BehaviorClass():
         ear = (left_ear + right_ear) / 2.0
             
         # check to see if the eye aspect ratio is below the eye threshold
-        if ear < self.eye_threshold:
+        if self.t_start and ear < self.eye_threshold:
             self.t_end = time.time()
             t = self.t_end - self.t_start
             if t >= 1.3:
