@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <title>Video Streaming Demonstration</title>
+  </head>
+  <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        var socket = io();
+        socket.on('connect', function() {
+          console.log("Connected")
+        });
+        socket.on('server_response', function(res) {
+          console.log(JSON.parse(res))
+        });
+    </script>
+    <h1>Video Streaming Demonstration</h1>
+    <img src="{{ url_for('video_feed') }}">
+  </body>
+</html>

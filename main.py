@@ -4,11 +4,13 @@ import logging
 import threading
 import sys
 import os
+import json
 from cv2 import cv2 as cv
 from queue import Queue
 from typing import Union
 
-import numpy as np
+from flask import Flask, render_template, Response
+from flask_socketio import SocketIO
 
 from driver import DriverClass
 
@@ -17,15 +19,19 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 video_file = 'data/videos/IMG_6782.mp4'
 #video_file = 'data/videos/incar_rgb_201908016-2.mp4'
 
-source_type = os.environ['INPUT_SRC'] if 'INPUT_SRC' in os.environ else 'video'
+source_type = os.environ['INPUT_SRC'] if 'INPUT_SRC' in os.environ else 'camera'
 avail_source_type = ['video', 'camera']
 name = ""
+
+app = Flask(__name__)
+socketio = SocketIO(app)
 
 def detect_image(model_class: str, frame_q: Queue):
     while True:
         frame = frame_q.get()
         if frame is None: break
-        model_class.detect_image(frame)
+        info = model_class.detect_image(frame)
+        socketio.emit('server_response', json.dumps(info))
 
 def capture_frames(source: Union[str, int], frame_q: Queue, model_class):
     try:
@@ -35,11 +41,25 @@ def capture_frames(source: Union[str, int], frame_q: Queue, model_class):
             retval, frame = cap.read()
             if retval:
                 frame_q.put(cv.flip(frame, 1))
-            img = model_class.get_img()
-            cv.imshow('output', img)
+
+                yield (
+                    b'--frame\r\n' +
+                    b'Content-Type: image/jpeg\r\n\r\n' + 
+                    cv.imencode('.jpg', frame)[1].tobytes() + 
+                    b'\r\n')
             cv.waitKey(1)
     finally:
         cap.release()
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/video_feed')
+def video_feed():        
+    return Response(
+        capture_frames(0 if source_type == 'camera' else video_file, frame_q, model_class),
+        mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
     frame_q = Queue(1)
@@ -66,7 +86,4 @@ if __name__ == '__main__':
     logging.info(f'Start to load from source input {source_type}')
     logging.info(f'Use source type {source_type}')
     
-    if source_type == 'video':
-        capture_frames(video_file, frame_q, model_class)
-    elif source_type == 'camera':
-        capture_frames(0, frame_q, model_class)
+    socketio.run(app)
