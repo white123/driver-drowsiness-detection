@@ -122,7 +122,7 @@ class DriverClass():
 
         # Check drowsiness and yawn
         t = time.time()
-        drowsiness, yawn, gaze, head_pose = self.obj_behavior.check_drowsiness_yawn(img, driver_face)
+        drowsiness, yawn, gaze, head_pose, theta = self.obj_behavior.check_drowsiness_yawn(img, driver_face)
         duration_yawn = time.time() - t
         #print('Drowsiness and Yawn Detection Time = {:8.6f} sec' .format(duration_yawn))
 
@@ -130,7 +130,7 @@ class DriverClass():
         self.info = [age, gender, name, emotion, drowsiness, yawn, gaze, confidence, color, 
                     x1, y1, x2, y2, 
                     duration_face, duration_age, duration_gender, 
-                    duration_emotion, duration_name, duration_yawn, head_pose]
+                    duration_emotion, duration_name, duration_yawn, head_pose, theta]
 
     def detect_image(self, image: np.ndarray):
         # Crop image
@@ -148,12 +148,12 @@ class DriverClass():
 
         age, gender, name, emotion, drowsiness, yawn, gaze, confidence, color, \
         x1, y1, x2, y2, duration_face, duration_age, duration_gender, \
-        duration_emotion, duration_name, duration_yawn, head_pose = self.info
+        duration_emotion, duration_name, duration_yawn, head_pose, theta = self.info
 
         return {
             'age': age, 'gender': gender, 'name': name, 'emotion': emotion, 'drowsiness': drowsiness, 'yawn': yawn, 'gaze': gaze, 'confidence': float(confidence), 'color': color,
             'x1': x1, 'y1': y1, 'x2': x2, 'y2': y2, 'duration_face': float(duration_face), 'duration_age': float(duration_age), 'duration_gender': float(duration_gender),
-            'duration_emotion': float(duration_emotion), 'duration_name': float(duration_name), 'duration_yawn': float(duration_yawn), 'head_pose': head_pose
+            'duration_emotion': float(duration_emotion), 'duration_name': float(duration_name), 'duration_yawn': float(duration_yawn), 'head_pose': head_pose, 'theta': theta
         }
 
 

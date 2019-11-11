@@ -7,6 +7,7 @@ import dlib
 from cv2 import cv2 as cv
 from imutils import face_utils
 import time
+import math
 
 class BehaviorClass():
     def __init__(self):
@@ -154,7 +155,7 @@ class BehaviorClass():
                             (shape0[33, :]),     # Nose tip
                             (shape0[8,  :]),     # Chin
                             (shape0[36, :]),     # Left eye left corner
-                            (shape0[45, :]),     # Right eye right corne
+                            (shape0[45, :]),     # Right eye right corner
                             (shape0[48, :]),     # Left Mouth corner
                             (shape0[54, :])      # Right mouth corner
                         ], dtype="double")
@@ -185,5 +186,26 @@ class BehaviorClass():
         (nose_end_point2D, jacobian) = cv.projectPoints(np.array([(0.0, 0.0, 1000.0)]), rotation_vector, translation_vector, camera_matrix, dist_coeffs)
         p1 = ( int(image_points[0][0]), int(image_points[0][1]))
         p2 = ( int(nose_end_point2D[0][0][0]), int(nose_end_point2D[0][0][1]))
+        # print(str(p2[0] - p1[0]), str(p2[1] - p1[1]))
+        
+        ''' x & y rotation '''
+        v_x = p2[0] - p1[0]
+        v_y = p2[1] - p1[1]
 
-        return drowsiness, yawn, gaze, [p1, p2]
+        area = (shape0[45, 0] - shape0[36, 0]) * (shape0[8, 1] - (shape0[45, 1] + shape0[36, 1]) / 2)
+        area = math.sqrt(area) if area > 0 else 0
+        length = 1000 * area / 100
+    
+        if length**2 - v_x**2 - v_y**2 <= 0:
+            v_x = 0
+            v_y = 0
+        h = math.sqrt(length**2 - v_x**2 - v_y**2)
+        theta_x = math.degrees(math.atan2(h, v_x)) - 90.0
+        theta_y = math.degrees(math.atan2(h, v_y)) - 90.0
+
+        theta_x = (theta_x / 5) ** 2 * 5 if theta_x > 0 else -(theta_x / 5) ** 2 * 5
+        theta_y = (theta_y) ** 2 if theta_y > 0 else -(theta_y) ** 2
+
+        # print('angle:', theta_x, theta_y)
+
+        return drowsiness, yawn, gaze, [p1, p2], [theta_x, theta_y]
