@@ -23,7 +23,7 @@ source_type = os.environ['INPUT_SRC'] if 'INPUT_SRC' in os.environ else 'camera'
 avail_source_type = ['video', 'camera']
 name = ""
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 socketio = SocketIO(app)
 
 def detect_image(model_class: str, frame_q: Queue):
@@ -40,12 +40,12 @@ def capture_frames(source: Union[str, int], frame_q: Queue, model_class):
             # Capture frame-by-frame
             retval, frame = cap.read()
             if retval:
-                frame_q.put(cv.flip(frame, 1))
+                frame_q.put(cv.flip(frame,1))
 
                 yield (
                     b'--frame\r\n' +
                     b'Content-Type: image/jpeg\r\n\r\n' + 
-                    cv.imencode('.jpg', frame)[1].tobytes() + 
+                    cv.imencode('.jpg', cv.flip(frame,1))[1].tobytes() + 
                     b'\r\n')
             cv.waitKey(1)
     finally:
