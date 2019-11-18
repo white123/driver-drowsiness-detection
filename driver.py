@@ -150,121 +150,41 @@ class DriverClass():
         x1, y1, x2, y2, duration_face, duration_age, duration_gender, \
         duration_emotion, duration_name, duration_yawn, head_pose, theta = self.info
 
+        duration = duration_face + duration_age + duration_gender + duration_emotion + duration_name + duration_yawn
+
+        '''show driver status'''
+        self.drowsiness_sum += drowsiness
+        self.drowsiness_sum -= self.drowsiness_vote.get()
+        self.drowsiness_vote.put(drowsiness)
+        self.yawn_sum += yawn
+        self.yawn_sum -= self.yawn_vote.get()
+        self.yawn_vote.put(yawn)
+
+        if int(self.yawn_sum * 1.1) + self.drowsiness_sum * 2 > self.vote_num:
+            safety_status = 'danger'
+        elif int(self.yawn_sum * 1.1) + self.drowsiness_sum * 2 > self.vote_num // 2:
+            safety_status = 'warning'
+        else:
+            safety_status = 'safe'
+
+        '''show driving status'''
+        if name == self.driver_name and self.driver_vote < 20:
+            self.driver_vote += 1
+        elif self.driver_vote > 0:
+            self.driver_vote -= 1
+
+        if not self.driving:
+            driving_status = "Vehicle Locked"
+            if self.driver_vote >= 15:
+                self.driving = True
+        else:
+            driving_status = "Driving Normally"
+            if self.driver_vote < 5:
+                driving_status = "Wrong Driver"
+
         return {
             'age': age, 'gender': gender, 'name': name, 'emotion': emotion, 'drowsiness': drowsiness, 'yawn': yawn, 'gaze': gaze, 'confidence': float(confidence), 'color': color,
             'x1': x1, 'y1': y1, 'x2': x2, 'y2': y2, 'duration_face': float(duration_face), 'duration_age': float(duration_age), 'duration_gender': float(duration_gender),
-            'duration_emotion': float(duration_emotion), 'duration_name': float(duration_name), 'duration_yawn': float(duration_yawn), 'head_pose': head_pose, 'theta': theta
+            'duration_emotion': float(duration_emotion), 'duration_name': float(duration_name), 'duration_yawn': float(duration_yawn), 'duration': float(duration), 'head_pose': head_pose,
+            'theta': theta, 'safety_status': safety_status, 'driving_status': driving_status
         }
-
-
-        # if not self.info:
-        #     self.output_img = utility.output_result(image, 0)
-        #     cv.putText(image, "Driver Missing", (200, 30), cv.FONT_HERSHEY_DUPLEX, 
-        #             1, (0,255,255), 1, cv.LINE_AA)
-        #     return 
-
-        # age, gender, name, emotion, drowsiness, yawn, gaze, confidence, color, \
-        # x1, y1, x2, y2, duration_face, duration_age, duration_gender, \
-        # duration_emotion, duration_name, duration_yawn, head_pose = self.info
-        
-        # duration = duration_face + duration_age + duration_gender + duration_emotion + duration_name + duration_yawn 
-
-        # # Display bboxes and information
-        # label = name + ", " + emotion
-        # y = y1 - utility.rect_h * 2
-        # if y < 0:
-        #     if (y1 - utility.rect_h) < 0:                        
-        #         y = y2 + utility.rect_h
-        #     else:
-        #         y = y2
-        # cv.rectangle(image, (x1, y), (x1 + utility.rect_w, y + utility.rect_h), color, -1)
-        # cv.putText(image, label, (x1 + 4, y + utility.rect_h - 4), cv.FONT_HERSHEY_SIMPLEX, 
-        #             utility.textsize_label, (255 - color[0], 255 - color[1], 255 - color[2]), 1, cv.LINE_AA)
-        # cv.line(image, head_pose[0], head_pose[1], (255,0,0), 2)
-            
-        # message = { "Name": name, "Emotion": emotion, "Gender": gender, "Age": age,
-        #             "Confidence": "{:6.4f}".format(confidence),
-        #             "Position": [int(x1), int(y1), int(x2), int(y2)],
-        #             "TimeStamp": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-        #             }
-        # label = gender + ", " + age
-        # utility.draw_object(image, color, label, confidence, x1, y1, x2, y2, message)
-
-        # # Ouput detail items
-        # utility.output_detail(image, 0, "Face Detection", duration_face)
-        # utility.output_detail(image, 1, "Age", duration_age)
-        # utility.output_detail(image, 2, "Gender", duration_gender)
-        # utility.output_detail(image, 3, "Emotion", duration_emotion)
-        # utility.output_detail(image, 4, "Driver identification", duration_name)
-        # utility.output_detail(image, 5, "Driver behavior", duration_yawn)
-
-        # # Send alert messages
-        # if True or (x1 >= self.driver_pos_x) and (y1 >= self.driver_pos_y):  # Only send alert for driver
-        #     if (name == "Unknown"):
-        #         cv.putText(image, "?", (int((x1 + x2) / 2) - 40, y1), cv.FONT_HERSHEY_DUPLEX, utility.textsize_label * 3, (128, 0, 128), 1, cv.LINE_AA)
-
-        #     alert = None
-        #     if drowsiness:
-        #         alert = "DROWSINESS"
-
-        #     if yawn:
-        #         if alert is None:
-        #             alert = "YAWN"
-        #         else:
-        #             alert = alert + " + YAWN"
-
-        #     if alert is not None:
-        #         print('alert:', alert)
-        #         cv.putText(image, "!!! " + alert + " !!!", (x1 + 10, int(y1 + utility.rect_h * 1.3)), 
-        #                     cv.FONT_HERSHEY_DUPLEX, utility.textsize_label * 1.2, (0, 0, 255), 1, cv.LINE_AA)
-            
-        #     # show driver status
-        #     self.drowsiness_sum += drowsiness
-        #     self.drowsiness_sum -= self.drowsiness_vote.get()
-        #     self.drowsiness_vote.put(drowsiness)
-        #     self.yawn_sum += yawn
-        #     self.yawn_sum -= self.yawn_vote.get()
-        #     self.yawn_vote.put(yawn)
-        #     # print('vote:', self.yawn_sum+self.drowsiness_sum*2)
-        #     if int(self.yawn_sum*1.1)+self.drowsiness_sum*2 > self.vote_num:
-        #         sleepy_status = 'danger'
-        #         print('Danger!!!\a')
-        #     elif int(self.yawn_sum*1.1)+self.drowsiness_sum*2 > self.vote_num//2:
-        #         sleepy_status = 'warning'
-        #     else:
-        #         sleepy_status = 'safe'
-        #     col = self.color_list[sleepy_status]
-        #     cv.putText(image, sleepy_status, (500, 30), cv.FONT_HERSHEY_DUPLEX, 
-        #                 1, col, 1, cv.LINE_AA)
-
-        # # show driving status // this is garbage
-        # if 'name' in locals():
-        #     if name == self.driver_name and self.driver_vote < 20:
-        #         self.driver_vote += 1
-        #     elif self.driver_vote > 0:
-        #         self.driver_vote -= 1
-
-        #     if not self.driving:
-        #         driving_status = "Vehicle Locked"
-        #         col = (255,255,0)
-        #         if self.driver_vote >= 15:
-        #             self.driving = True
-        #             logging.info(f'Welcome back {self.driver_name}')
-        #     else:
-        #         driving_status = "Driving Normally"
-        #         col = (255,0,0)
-        #         if self.driver_vote < 5:
-        #             driving_status = "Wrong Driver! Speed Limit: 20"
-        #             print('Wrong Driver!!!\a')
-        #             col = (0,0,255)
-        # if not driving_status == 'Wrong Driver! Speed Limit: 20':
-        #     cv.putText(image, driving_status, (200, 60), cv.FONT_HERSHEY_DUPLEX, 
-        #                 1, col, 1, cv.LINE_AA)
-        # else:
-        #     cv.putText(image, driving_status, (80, 60), cv.FONT_HERSHEY_DUPLEX, 
-        #                 1, col, 1, cv.LINE_AA)
-                    
-        # # Ouput detection result
-        # #image = cv.resize(image, (self.image_w, self.image_h))   # restore to the original image size to display
-        
-        # self.output_img = utility.output_result(image, duration)
