@@ -14,7 +14,9 @@ from flask_socketio import SocketIO
 
 from driver import DriverClass
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
+logging.basicConfig(stream=sys.stdout, level=logging.ERROR)
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 video_file = 'data/videos/IMG_6782.mp4'
 #video_file = 'data/videos/incar_rgb_201908016-2.mp4'

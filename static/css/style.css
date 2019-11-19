@@ -24,7 +24,7 @@ body{
 	margin: 10px;
 }
 
-.notification{
+#notification{
 	position:fixed;
 	min-width: 200px;
 	top: 50%;
@@ -79,4 +79,16 @@ body{
 	align-items: flex-end;
 	color: white;
 	font-size: 1.5vw;
+}
+
+#safe-status{
+	position: absolute;
+	right: 0;
+	display: inline-flex;
+	background-color: rgba(0,0,0,0.3);
+	justify-content: center;
+	width: 8vw;
+	padding: 10px;
+	margin: 10px;
+	font-size: 20px;
 }

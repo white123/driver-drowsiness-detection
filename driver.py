@@ -161,11 +161,11 @@ class DriverClass():
         self.yawn_vote.put(yawn)
 
         if int(self.yawn_sum * 1.1) + self.drowsiness_sum * 2 > self.vote_num:
-            safety_status = 'danger'
+            safety_status = 'Danger'
         elif int(self.yawn_sum * 1.1) + self.drowsiness_sum * 2 > self.vote_num // 2:
-            safety_status = 'warning'
+            safety_status = 'Warning'
         else:
-            safety_status = 'safe'
+            safety_status = 'Safe'
 
         '''show driving status'''
         if name == self.driver_name and self.driver_vote < 20:

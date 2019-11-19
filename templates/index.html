@@ -2,13 +2,22 @@
   <head>
     <title>Video Streaming Demonstration</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/lock.css">
   </head>
   <body>
+    <script>
+      var limit = false;
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="https://www.chartjs.org/samples/latest/utils.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
     
+    <div id="lock-container">
+      <span class="lock"></span>
+      <p id="lock-text">LOCK</p>
+    </div>
+    <div id="safe-status"></div>
     <img id="video" src="{{ url_for('video_feed') }}">
     <div id="chart">
       <canvas id="headpose"></canvas>
@@ -20,6 +29,7 @@
       </div>
     </div>
     <script src="/static/js/headpose.js"></script>
+    <script src="/static/js/lock.js"></script>
     <script src="/static/js/warning.js"></script>
     <script src="/static/js/speed.js"></script>
     <script src="/static/js/script.js"></script>
