@@ -15,10 +15,8 @@ class BehaviorClass():
         # Initialize drowsiness and yawn checking
         self.detector = dlib.get_frontal_face_detector()
         self.predictor = dlib.shape_predictor("models/emotion_ferplus/shape_predictor_68_face_landmarks.dat")
-        self.eye_threshold = 0.20
-        self.mouth_threshold = 0.2
-        self.face_size_w = 400
-        self.face_size_h = 400
+        self.eye_threshold = 0.22
+        self.mouth_threshold = 0.15
         self.frame = None
         self.t_start = None
         self.t_end = None
@@ -103,7 +101,8 @@ class BehaviorClass():
  
         # average the eye aspect ratio together for both eyes
         ear = (left_ear + right_ear) / 2.0
-            
+        
+        # print('ear:', ear, 'eye_threshold', self.eye_threshold)
         # check to see if the eye aspect ratio is below the eye threshold
         if self.t_start and ear < self.eye_threshold:
             self.t_end = time.time()
@@ -133,7 +132,7 @@ class BehaviorClass():
         #distance=math.sqrt((bottom_lips_mean[0] - top_lips_mean[0])**2 + (bottom_lips_mean[-1] - top_lips_mean[-1])**2)
         distance = bottom_lips_mean[-1] - top_lips_mean[-1]
 
-        threshold = (rect.bottom() - rect.top()) * self.mouth_threshold     
+        threshold = (rect.bottom() - rect.top()) * self.mouth_threshold
         if distance > threshold:
             yawn=True
 
@@ -194,7 +193,7 @@ class BehaviorClass():
 
         area = (shape0[45, 0] - shape0[36, 0]) * (shape0[8, 1] - (shape0[45, 1] + shape0[36, 1]) / 2)
         area = math.sqrt(area) if area > 0 else 0
-        length = 1000 * area / 100
+        length = 1000 * area / 200
     
         if length**2 - v_x**2 - v_y**2 <= 0:
             v_x = 0
@@ -203,8 +202,8 @@ class BehaviorClass():
         theta_x = math.degrees(math.atan2(h, v_x)) - 90.0
         theta_y = math.degrees(math.atan2(h, v_y)) - 90.0
 
-        theta_x = (theta_x / 5) ** 2 * 5 if theta_x > 0 else -(theta_x / 5) ** 2 * 5
-        theta_y = (theta_y) ** 2 if theta_y > 0 else -(theta_y) ** 2
+        # theta_x = (theta_x / 5) ** 2 * 5 if theta_x > 0 else -(theta_x / 5) ** 2 * 5
+        theta_y = (theta_y / 6) ** 3 * 6 if theta_y > 0 else (theta_y / 6) ** 3 * 6
 
         # print('angle:', theta_x, theta_y)
 

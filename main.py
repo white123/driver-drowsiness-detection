@@ -14,7 +14,6 @@ from flask_socketio import SocketIO
 
 from driver import DriverClass
 
-
 logging.basicConfig(stream=sys.stdout, level=logging.ERROR)
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
