@@ -136,7 +136,7 @@ class DriverClass():
         else:
             driving_status = "Driving Normally"
             if self.driver_vote < 5:
-                driving_status = "Wrong Driver"
+                driving_status = "Invalid Driver"
 
         print(f'theta: {theta}')
 

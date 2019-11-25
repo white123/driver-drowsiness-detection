@@ -203,7 +203,7 @@ class BehaviorClass():
         theta_y = math.degrees(math.atan2(h, v_y)) - 90.0
 
         # theta_x = (theta_x / 5) ** 2 * 5 if theta_x > 0 else -(theta_x / 5) ** 2 * 5
-        theta_y = (theta_y / 6) ** 3 * 6 if theta_y > 0 else (theta_y / 6) ** 3 * 6
+        # theta_y = (theta_y / 6) ** 2 * 6 if theta_y > 0 else -(theta_y / 6) ** 2 * 6
 
         # print('angle:', theta_x, theta_y)
 
