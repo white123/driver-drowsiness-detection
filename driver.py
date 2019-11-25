@@ -45,12 +45,11 @@ class DriverClass():
         self.driver_name = name
         self.driver_vote = 0
 
-        self.head_status = dict
-        self.head_vote = [Queue(30), Queue(30), Queue(30), Queue(30), Queue(30)]  # down, left_more, right_more, left_less, right_less
+        self.head_vote = [Queue(15) for _ in range(5)]  # down, left_more, right_more, left_less, right_less
         self.head_sum = [0, 0, 0, 0, 0]
         
         for i in range(5):
-            for _ in range(30):
+            for _ in range(15):
                 self.head_vote[i].put(False)
 
         # if utility.is_recording:
@@ -165,8 +164,9 @@ class DriverClass():
             self.head_vote[i].put(tmp[i])
         
         headpose_status = 5
+        # print(self.head_sum);
         for i, s in enumerate(self.head_sum):
-            if s > 20:
+            if s > 10:
                 headpose_status = i
                 break
         
