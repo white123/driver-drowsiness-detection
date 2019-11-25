@@ -138,7 +138,7 @@ class DriverClass():
             if self.driver_vote < 5:
                 driving_status = "Invalid Driver"
 
-        print(f'theta: {theta}')
+        # print(f'theta: {theta}')
 
         return {
             'name': name, 'drowsiness': drowsiness, 'yawn': yawn, 'gaze': gaze,
