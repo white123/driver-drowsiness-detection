@@ -20,7 +20,7 @@ socket.on('server_response', function(res) {
   		wrong_driver = null;
       limit = false;
   	}
-  }else if(ret.driving_status == "Wrong Driver"){
+  }else if(ret.driving_status == "Invalid Driver"){
   	if(!wrong_driver && !danger){
       limit = true;
   		wrong_driver = wrong(ret.driving_status, "Speed limited to 20km/h");
