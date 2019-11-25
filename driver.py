@@ -45,6 +45,14 @@ class DriverClass():
         self.driver_name = name
         self.driver_vote = 0
 
+        self.head_status = dict
+        self.head_vote = [Queue(30), Queue(30), Queue(30), Queue(30), Queue(30)]  # down, left_more, right_more, left_less, right_less
+        self.head_sum = [0, 0, 0, 0, 0]
+        
+        for i in range(5):
+            for _ in range(30):
+                self.head_vote[i].put(False)
+
         # if utility.is_recording:
         #     utility.start_record(self.image_w, self.image_h)
 
@@ -138,12 +146,35 @@ class DriverClass():
             if self.driver_vote < 5:
                 driving_status = "Invalid Driver"
 
-        # print(f'theta: {theta}')
-
+        ''' head pose status '''
+        tmp = [False] * 5
+        if theta[1] < -20:
+            tmp[0] = True
+        if theta[0] > 25:
+            tmp[1] = True
+        elif theta[0] > 15:
+            tmp[3] = True
+        if theta[0] < -25:
+            tmp[2] = True
+        elif theta[0] < -15:
+            tmp[4] = True
+        
+        for i in range(5):
+            self.head_sum[i] += tmp[i]
+            self.head_sum[i] -= self.head_vote[i].get()
+            self.head_vote[i].put(tmp[i])
+        
+        headpose_status = 5
+        for i, s in enumerate(self.head_sum):
+            if s > 20:
+                headpose_status = i
+                break
+        
         return {
             'name': name, 'drowsiness': drowsiness, 'yawn': yawn, 'gaze': gaze,
             'x1': x1, 'y1': y1, 'x2': x2, 'y2': y2,
             'duration_face': float(duration_face), 'duration_name': float(duration_name),
             'duration_yawn': float(duration_yawn), 'duration': float(duration), 'head_pose': head_pose,
-            'theta': theta, 'safety_status': safety_status, 'driving_status': driving_status
+            'theta': theta, 'safety_status': safety_status, 'driving_status': driving_status, 
+            'headpose_status': headpose_status
         }
