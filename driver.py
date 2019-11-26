@@ -164,11 +164,12 @@ class DriverClass():
             self.head_vote[i].put(tmp[i])
         
         headpose_status = 5
-        # print(self.head_sum);
         for i, s in enumerate(self.head_sum):
             if s > 10:
                 headpose_status = i
                 break
+        # print(self.head_sum, headpose_status)
+
         
         return {
             'name': name, 'drowsiness': drowsiness, 'yawn': yawn, 'gaze': gaze,
