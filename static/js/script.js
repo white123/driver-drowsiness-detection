@@ -10,7 +10,6 @@ socket.on('connect', function() {
 });
 socket.on('server_response', function(res) {
   var ret = JSON.parse(res);
-  console.log(ret.headpose_status, typeof(ret.headpose_status));
   if(lock){
     if(ret.driving_status == "Driving Normally"){
     	unlock();
@@ -86,6 +85,11 @@ socket.on('server_response', function(res) {
         }
         break;
       default:
+        if(warning){
+            warning.remove();
+            warning = null;
+            warning_type = null;
+        }
         break;
     }
   }else if(warning){

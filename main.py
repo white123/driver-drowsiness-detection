@@ -8,6 +8,7 @@ import json
 from cv2 import cv2 as cv
 from queue import Queue
 from typing import Union
+from time import time
 
 from flask import Flask, render_template, Response
 from flask_socketio import SocketIO
@@ -28,10 +29,16 @@ app = Flask(__name__, static_url_path='/static')
 socketio = SocketIO(app)
 
 def detect_image(model_class: str, frame_q: Queue):
+    count = 0
+    s = 0
     while True:
         frame = frame_q.get()
         if frame is None: break
+        t = time()
         info = model_class.detect_image(frame)
+        s += 1/(time()-t)
+        count += 1
+        print(s/count, time()-t)
         socketio.emit('server_response', json.dumps(info))
 
 def capture_frames(source: Union[str, int], frame_q: Queue, model_class):
