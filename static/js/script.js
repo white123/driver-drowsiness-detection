@@ -10,6 +10,10 @@ socket.on('connect', function() {
 });
 socket.on('server_response', function(res) {
   var ret = JSON.parse(res);
+<<<<<<< HEAD
+=======
+  console.log(ret.headpose_status, typeof(ret.headpose_status), warning);
+>>>>>>> 51a7d3d302018b20ea6536043cc4682b0a4ca34c
   if(lock){
     if(ret.driving_status == "Driving Normally"){
     	unlock();
@@ -84,11 +88,12 @@ socket.on('server_response', function(res) {
           warning_type = "right-light";
         }
         break;
+      case 5:
       default:
         if(warning){
-            warning.remove();
-            warning = null;
-            warning_type = null;
+          warning.remove();
+          warning = null;
+          warning_type = null;
         }
         break;
     }
