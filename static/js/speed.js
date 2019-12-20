@@ -16,7 +16,7 @@ document.addEventListener('keydown', function(event) {
         if (speed < 0) speed = 0;
     }
     else if(event.key == "ArrowUp" || event.key == 'w') {
-        if(!(limit && speed > 20))
+        if(!(limit && speed > 20) && !lock)
             speed += 2;
         if (speed > 150) speed = 150;
     }
