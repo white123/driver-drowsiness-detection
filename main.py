@@ -38,7 +38,7 @@ def detect_image(model_class: str, frame_q: Queue):
         info = model_class.detect_image(frame)
         s += 1/(time()-t)
         count += 1
-        print(s/count, time()-t)
+        print(s/count, time()-t, end='\r')
         socketio.emit('server_response', json.dumps(info))
 
 def capture_frames(source: Union[str, int], frame_q: Queue, model_class):

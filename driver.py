@@ -149,13 +149,13 @@ class DriverClass():
         tmp = [False] * 5
         if theta[1] < -20:
             tmp[0] = True
-        if theta[0] > 25:
+        if theta[0] > 20:
             tmp[1] = True
-        elif theta[0] > 15:
+        elif theta[0] > 10:
             tmp[3] = True
-        if theta[0] < -25:
+        if theta[0] < -35:
             tmp[2] = True
-        elif theta[0] < -15:
+        elif theta[0] < -20:
             tmp[4] = True
         
         for i in range(5):
